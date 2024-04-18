@@ -2,7 +2,7 @@
 import './App.css';
 
 import {BrowserRouter, Routes , Route} from 'react-router-dom';
-import {Cart, Product, Shop as HomePage, Login, SignUp, Shop} from './Pages/';
+import {Cart, Product, LoginSignup, Shop} from './Pages/';
 import Layout from './Components/Layout/Layout';
 
 import Footer from './Components/Footer/Footer';
@@ -26,8 +26,8 @@ function App() {
           </Route>
 
           {/* No navbar */}
-          <Route path='login' element= {<Login/>}/>
-          <Route path='signup' element= {<SignUp/>}/>
+          <Route path='login' element= {<LoginSignup/>}/>
+          {/* <Route path='signup' element= {<SignUp/>}/> */}
           
 
           {/* Private Routes */}
