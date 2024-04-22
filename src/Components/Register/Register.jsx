@@ -1,58 +1,54 @@
-/* TODO - add your code to create a functional React component that renders a registration form */
-
-
-/* TODO - add your code to create a functional React component that renders a registration form */
-import {useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { API_URL } from "../../Pages/index";
 
-
-export default function Register({user, setUser, token, setToken}) {
-  const [registerData, setRegisterData] = useState({
-    firstName: "",
-    lastName: "",
-    email: "",
-    password: "",
-  });
-
+export default function Register({ user, setUser, token, setToken }) {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [successMessage, setSuccessMessage] = useState(null);
+  const [error, setError] = useState(null);
   const navigate = useNavigate();
-  const API_URL = "https://fakestoreapi.com";
 
-  async function Submit(email) {
-    email.preventDefault();
+  const submit = (ev) => {
+    ev.preventDefault();
+    register({ email, password });
+  };
+
+  const register = async (credentials) => {
     try {
-      const response = await fetch(`${API_URL}/users`, {
+      const response = await fetch(`${API_URL}`, {
         method: "POST",
-        body: JSON.stringify( {
-            email:'John@gmail.com',
-            username:'johnd',
-            password:'m38rmF$',
-            name:{
-                firstname:'John',
-                lastname:'Doe'
-            },
-            address:{
-                city:'kilcoole',
-                street:'7835 new road',
-                number:3,
-                zipcode:'12926-3874',
-                geolocation:{
-                    lat:'-37.3159',
-                    long:'81.1496'
-                }
-            },
-            phone:'1-570-236-7033'
-        }
-    )
-}).then(res=>res)
+        body: JSON.stringify(credentials),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
       const result = await response.json();
-      if (result.message === "Registration successful") {
-        setUser(`${registerData.email}`);
+      if (response.ok) {
+        window.localStorage.setItem("token", result.token);
+        setSuccessMessage(
+          "Registered successfully. Please log in to your account"
+        );
         setToken(result.token);
+        setUser(email);
       } else {
-        console.error(result.message);
+        setError("Failed to register");
       }
     } catch (error) {
       console.log(error);
+    }
+  };
+
+  function validateForm() {
+    if (password.length < 5) {
+      alert(
+        "Invalid Form, Password must contain greater than or equal to 5 characters."
+      );
+      return;
+    }
+    if (email == password) {
+      alert("Invalid Form, Password cant be the same as email.");
+      return;
     }
   }
 
@@ -63,79 +59,35 @@ export default function Register({user, setUser, token, setToken}) {
       ) : (
         <div className="login">
           <h1>Register</h1>
-          <form>
-            
-              <label htmlFor={"first-name"} className="firstName">
-              First Name:{" "}
-              <input
-                onChange={(email) => {
-                  setRegisterData({
-                    firstName: email.target.value,
-                    lastName: registerData.lastName,
-                    email: registerData.email,
-                    password: registerData.password,
-                  });
-                }}
-                type={"text"}
-                name={"first-name"}
-                value={registerData.firstName}
-              />
-            </label>
-            {/* last name */}
-            <label htmlFor={"last-name"} className="lastName">
-              Last Name:{" "}
-              <input
-                onChange={(email) => {
-                  setRegisterData({
-                    firstName: registerData.firstName,
-                    lastName: email.target.value,
-                    email: registerData.email,
-                    password: registerData.password,
-                  });
-                }}
-                type={"text"}
-                name={"last-name"}
-                value={registerData.lastName}
-              />
-            </label>
-            {/* email */}
+          {error && <p>{error}</p>}
+          {successMessage && <p>{successMessage}</p>}
+          <form className="form" onSubmit={submit}>
             <label htmlFor={"email"} className="email">
               Email address:{" "}
               <input
-                onChange={(email) => {
-                  setRegisterData({
-                    firstName: registerData.firstName,
-                    lastName: registerData.lastName,
-                    email: email.target.value,
-                    password: registerData.password,
-                  });
-                }}
                 type={"email"}
-                name={"email"}
-                value={registerData.email}
+                value={email}
+                onChange={(ev) => setEmail(ev.target.value)}
               />
             </label>
-            {/* password */}
             <label htmlFor={"password"} className="password">
               Password:{" "}
               <input
-                onChange={(email) => {
-                  setRegisterData({
-                    firstName: registerData.firstName,
-                    lastName: registerData.lastName,
-                    email: registerData.email,
-                    password: email.target.value,
-                  });
-                }}
                 type={"password"}
-                name={"password"}
-                value={registerData.password}
+                value={password}
+                onChange={(ev) => setPassword(ev.target.value)}
               />
             </label>
-           
-            <button onClick={Submit}>Register</button>
+            <button
+              disabled={!email || !password}
+              type="submit"
+              onClick={() => {
+                validateForm();
+              }}
+            >
+              Register
+            </button>
           </form>
-          
           <p>If you already has an account, just log in</p>
           <button onClick={() => navigate("/login")}>Log in</button>
         </div>

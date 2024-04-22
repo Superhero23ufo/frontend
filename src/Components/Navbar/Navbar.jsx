@@ -6,6 +6,9 @@ import { Link } from "react-router-dom";
 import { ShppContext } from "../../Context/ShopContext";
 const Navbar = () => {
 
+const [token, setToken] = useState(null);
+  const [user, setUser] = useState(null);
+
     const[menu, setMenu] = useState("shop");
      const {getTotalCartItems} = useContext(ShppContext);
 

@@ -1,17 +1,16 @@
 
 import './App.css';
-
 import {BrowserRouter, Routes , Route} from 'react-router-dom';
 import {Cart, Product, Shop as HomePage, Login, SignUp, Shop} from './Pages/';
 import Layout from './Components/Layout/Layout';
-
 import Footer from './Components/Footer/Footer';
 // import  men_banner from './Components/Asset/banner_mens.png'
 // import women_banner from './Components/Asset/banner_women.png'
 // import kid_banner from './Components/Asset/banner_kids.png'
 
 function App() {
-
+  const [token, setToken] = useState(null);
+  const [user, setUser] = useState(null);
   return (
     <div>
       <BrowserRouter>
@@ -26,13 +25,18 @@ function App() {
           </Route>
 
           {/* No navbar */}
-          <Route path='login' element= {<Login/>}/>
-          <Route path='signup' element= {<SignUp/>}/>
+          <Route path='login' element= {<Login token={token}/>}/>
+          <Route path='signup' element= {<SignUp 
+                   user={user}
+                  setUser={setUser}
+                  token={token}
+                  setToken={setToken}/>}/>
           
 
           {/* Private Routes */}
           <Route element=''>
-            <Route path='/cart' element= {<Cart/>}/>
+            <Route path='/cart' 
+            element= {<Cart token={token}/> }/>
           </Route>
           
 
