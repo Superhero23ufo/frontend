@@ -29,7 +29,7 @@ router.post('/login', async (req, res) => {
 	if (!user.rows[0]) {
 		return res.status(400).send('User not found')
 	}
-	const isPasswordValid = await bcrypt.compare(password, user.rows[0].password)
+	const isPasswordValid = await bcrypt.compare(password, user.rows[0].password) 
 	if (!isPasswordValid) {
 		return res.status(400).send('Invalid password')
 	}
@@ -41,17 +41,27 @@ router.post('/login', async (req, res) => {
 	await client.query(
 		`INSERT INTO users (token) values ('${token}') WHERE id = ${user.rows[0].id}`
 	)
-	res.status(200).send(token)
+	res.status(200).send({
+		token,
+		user: {
+			id: user.rows[0].id,
+			email: user.rows[0].email,
+		},
+	
+	})
 })
 // Signup
 router.post('/signup', async (req, res) => {
 	const { email, password } = req.body
 	const hashedPassword = await bcrypt.hash(password, 10)
 	const user = await client.query(
-		`INSERT INTO users (email, password) VALUES ('${email}', '${hashedPassword}') RETURNING *`
+		`INSERT INTO users (email, password) VALUES ('${email}', '${hashedPassword}') RETURNING id,email`
 	)
 	res.status(200).send(
-		`User with email ${user.email} has been created successfully`
+		{
+			id: user.rows[0].id,
+			email: user.rows[0].email,
+		} 
 	)
 })
 // Logout
@@ -75,8 +85,8 @@ router.get('/products/:id', async (req, res) => {
 	const { id } = req.params
 	const product = await (
 		await client.query(`SELECT * FROM products WHERE id = ${id}`)
-	).rows[0]
-	res.status(200).send(product)
+	)
+	res.status(200).send(product.rows[0])
 })
 
 // Create a cart
@@ -84,8 +94,8 @@ router.post('/cart', isAuthenticated, async (req, res) => {
 	const { id } = req.user
 	const cart = await client.query(
 		`INSERT INTO carts (user_id) VALUES (${id}) RETURNING *`
-	).rows[0]
-	res.status(200).send(cart)
+	)
+	res.status(200).send(cart.rows[0])
 })
 // Add product to cart
 router.post('/cart/:cartId', isAuthenticated, async (req, res) => {
@@ -93,27 +103,26 @@ router.post('/cart/:cartId', isAuthenticated, async (req, res) => {
 	const { productId, quantity } = req.body
 	const cart = await client.query(
 		`INSERT INTO cart_products (cart_id, product_id, quantity) VALUES (${cartId}, ${productId}, ${quantity}) RETURNING *`
-	).rows[0]
-	res.status(200).send(cart)
+	)
+	res.status(200).send(cart.rows[0])
 })
 // Get cart by ID
 router.get('/cart', isAuthenticated, async (req, res) => {
 	const { id } = req.user
 	const cart = await (
 		await client.query(`SELECT * FROM carts WHERE user_id = ${id}`)
-	).rows[0]
-	res.status(200).send(cart)
+	)
+	res.status(200).send(cart.rows[0])
 })
 // Get products in cart
 router.get('/cart/products', isAuthenticated, async (req, res) => {
 	const { id } = req.user
 	const cart = (await client.query(`SELECT * FROM carts WHERE user_id = ${id}`))
-		.rows[0]
-	const cartId = cart.id
+	const cartId = cart.rows[0].id
 	const cartProducts = await client.query(
 		`SELECT * FROM cart_products WHERE cart_id = ${cartId}`
 	)
-	res.status(200).send(cartProducts)
+	res.status(200).send(cartProducts.rows[0])
 })
 // Update product quantity in cart
 router.put('/cart/products/:productId', isAuthenticated, async (req, res) => {
@@ -125,8 +134,8 @@ router.put('/cart/products/:productId', isAuthenticated, async (req, res) => {
 	const { quantity } = req.body
 	const cartProduct = await client.query(
 		`UPDATE cart_products SET quantity = ${quantity} WHERE cart_id = ${cartId} AND product_id = ${productId} RETURNING *`
-	).rows[0]
-	res.status(200).send(cartProduct)
+	)
+	res.status(200).send(cartProduct.rows[0])
 })  
 // Delete product from cart
 router.delete(
@@ -139,7 +148,7 @@ router.delete(
 		const { productId } = req.params
 		await client.query(
 			`DELETE FROM cart_products WHERE cart_id = ${cartId} AND product_id = ${productId}`
-		).rows[0]
+		)
 		res.status(200).send('Product deleted from cart')
 	}
 )
@@ -150,7 +159,7 @@ router.delete('/cart', isAuthenticated, async (req, res) => {
 	const cartId = cart.id
 	await (
 		await client.query(`DELETE FROM carts WHERE id = ${cartId}`)
-	).rows[0]
+	)
 	res.status(200).send('Cart deleted')
 })
 
