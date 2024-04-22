@@ -18,7 +18,7 @@ export default function Login({ user, setUser, token, setToken }) {
 
   const login = async ({ email, password }) => {
     try {
-      const response = await fetch(`${URL}/auth/login`, {
+      const response = await fetch(`${URL}/login`, {
         method: "POST",
         body: {
            email,

@@ -130,7 +130,7 @@ router.get('/cart/products', isAuthenticated, async (req, res) => {
 router.put('/cart/products/:productId', isAuthenticated, async (req, res) => {
 	const { id } = req.user
 	const cart = await client.query(`SELECT * FROM carts WHERE user_id = ${id}`)
-	const cartId = cart.id
+	const cartId = cart.rows[0].id
 
 	const { productId } = req.params
 	const { quantity } = req.body
@@ -146,7 +146,7 @@ router.delete(
 	async (req, res) => {
 		const { id } = req.user
 		const cart = await client.query(`SELECT * FROM carts WHERE user_id = ${id}`)
-		const cartId = cart.id
+		const cartId = cart.rows[0].id
 		const { productId } = req.params
 		await client.query(
 			`DELETE FROM cart_products WHERE cart_id = ${cartId} AND product_id = ${productId}`
@@ -158,7 +158,7 @@ router.delete(
 router.delete('/cart', isAuthenticated, async (req, res) => {
 	const { id } = req.user
 	const cart = await client.query(`SELECT * FROM carts WHERE user_id = ${id}`)
-	const cartId = cart.id
+	const cartId = cart.rows[0].id
 	await (
 		await client.query(`DELETE FROM carts WHERE id = ${cartId}`)
 	)
