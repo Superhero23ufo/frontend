@@ -25,7 +25,7 @@ router.post('/login', async (req, res) => {
 	const user = await client.query(
 		`SELECT * FROM users WHERE email = '${email}'`
 	)
-	console.log(user.rows[0])
+
 	if (!user.rows[0]) {
 		return res.status(400).send('User not found')
 	}
@@ -39,11 +39,10 @@ router.post('/login', async (req, res) => {
 	)
 	// insert token into the database
 	const id = user.rows[0].id
-	console.log(id)
 
 	await client.query(
-		`UPDATE users SET token = '${token}' WHERE id = ${id}`
-	)
+		'UPDATE users SET token = $1 WHERE id = $2'
+	, [token, id])
 	res.status(200).send({
 		token,
 		user: {
