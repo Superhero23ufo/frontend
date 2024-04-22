@@ -38,7 +38,7 @@ router.post('/login', async (req, res) => {
 	)
 	// insert token into the database
 	await client.query(
-		`INSERT INTO tokens (token, user_id) VALUES ('${token}', ${user.id})`
+		`INSERT INTO users (token) values ('${token}') WHERE id = ${user.id}`
 	)
 	res.status(200).send(token)
 })
@@ -56,7 +56,7 @@ router.post('/signup', async (req, res) => {
 // Logout
 router.post('/logout', isAuthenticated, async (req, res) => {
 	const { id } = req.user
-	await client.query(`DELETE FROM tokens WHERE user_id = ${id}`)
+	await client.query(`DELETE FROM users WHERE id = ${id}`)
 	res.status(200).send('Logged out successfully')
 })
 
