@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { API_URL } from "../main";
+import { URL } from "../../api/axios";
 
 export default function Login({ user, setUser, token, setToken }) {
   const [email, setEmail] = useState("");
@@ -15,38 +15,23 @@ export default function Login({ user, setUser, token, setToken }) {
     login({ email, password });
   };
 
-  const attemptLoginWithToken = async () => {
-    const token = window.localStorage.getItem("token");
-    if (token) {
-      const response = await fetch(`${API_URL}/auth/me`, {
-        headers: {
-          authorization: `Bearer ${token}`,
-        },
-      });
-      const result = await response.json();
-      if (response.ok) {
-        console.log(result);
-      } else {
-        window.localStorage.removeItem("token");
-      }
-    }
-  };
 
-  const login = async (credentials) => {
+  const login = async ({ email, password }) => {
     try {
-      const response = await fetch(`${API_URL}/auth/login`, {
+      const response = await fetch(`${URL}/auth/login`, {
         method: "POST",
-        body: JSON.stringify(credentials),
+        body: {
+           email,
+          password,
+        },
         headers: {
           "Content-Type": "application/json",
         },
       });
       const result = await response.json();
+      console.log(result);
       if (response.ok) {
-        window.localStorage.setItem("token", result.token);
-        setToken(result.token);
-        attemptLoginWithToken();
-        setUser(`${email}`);
+        // window.localStorage.setItem("token", result.token);
         setSuccessMessage("Login success");
       } else {
         setError("Failed to login. Please use correct password or register");

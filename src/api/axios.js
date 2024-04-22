@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-const URL = 'https://fakestoreapi.com'
+export const URL = 'https://frontend-unvu.onrender.com/api'
 
 export default axios.create({
     baseURL: URL,

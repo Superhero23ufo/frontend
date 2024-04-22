@@ -44,7 +44,7 @@ router.post('/signup', async (req, res) => {
 	const hashedPassword = await bcrypt.hash(password, 10)
 	const user = await client.query(
 		`INSERT INTO users (email, password) VALUES ('${email}', '${hashedPassword}') RETURNING *`
-	).rows[0]
+	)
 	const token = jwt.sign(
 		{ id: user.id, email: user.email },
 		'SuperSecretImpossibleToDecode'

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { API_URL } from "../../Pages/index";
+import { URL } from "../../api/axios";
 
 export default function Register({ user, setUser, token, setToken }) {
   const [email, setEmail] = useState("");
@@ -14,23 +14,27 @@ export default function Register({ user, setUser, token, setToken }) {
     register({ email, password });
   };
 
-  const register = async (credentials) => {
+  const register = async ({email,password}) => {
     try {
-      const response = await fetch(`${API_URL}`, {
+      const response = await fetch(`${URL}`, {
         method: "POST",
-        body: JSON.stringify(credentials),
+        body: {
+          email,
+          password,
+        },
         headers: {
           "Content-Type": "application/json",
         },
       });
       const result = await response.json();
+      console.log(result);
       if (response.ok) {
-        window.localStorage.setItem("token", result.token);
+        // window.localStorage.setItem("token", result.token);
         setSuccessMessage(
           "Registered successfully. Please log in to your account"
         );
-        setToken(result.token);
-        setUser(email);
+        // setToken(result.token);
+        // setUser(email);
       } else {
         setError("Failed to register");
       }
