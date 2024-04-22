@@ -24,8 +24,9 @@ router.post('/login', async (req, res) => {
 	const { email, password } = req.body
 	const user = await client.query(
 		`SELECT * FROM users WHERE email = '${email}'`
-	).rows[0]
-	if (!user) {
+	)
+	console.log(user.rows[0])
+	if (!user.rows[0]) {
 		return res.status(400).send('User not found')
 	}
 	const isPasswordValid = await bcrypt.compare(password, user.password)
@@ -38,7 +39,7 @@ router.post('/login', async (req, res) => {
 	)
 	// insert token into the database
 	await client.query(
-		`INSERT INTO users (token) values ('${token}') WHERE id = ${user.id}`
+		`INSERT INTO users (token) values ('${token}') WHERE id = ${user.rows[0].id}`
 	)
 	res.status(200).send(token)
 })
