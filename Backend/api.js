@@ -38,8 +38,11 @@ router.post('/login', async (req, res) => {
 		' SuperSecretImpossibleToDecode'
 	)
 	// insert token into the database
+	const id = user.rows[0].id
+	console.log(id)
+	
 	await client.query(
-		`INSERT INTO users (token) values ('${token}') WHERE id = ${user.rows[0].id}`
+		`INSERT INTO users (token) values ('${token}') WHERE id = ${id}`
 	)
 	res.status(200).send({
 		token,
