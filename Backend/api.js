@@ -36,6 +36,10 @@ router.post('/login', async (req, res) => {
 		{ id: user.id, email: user.email },
 		' SuperSecretImpossibleToDecode'
 	)
+	// insert token into the database
+	await client.query(
+		`INSERT INTO tokens (token, user_id) VALUES ('${token}', ${user.id})`
+	)
 	res.status(200).send(token)
 })
 // Signup
@@ -45,12 +49,17 @@ router.post('/signup', async (req, res) => {
 	const user = await client.query(
 		`INSERT INTO users (email, password) VALUES ('${email}', '${hashedPassword}') RETURNING *`
 	)
-	const token = jwt.sign(
-		{ id: user.id, email: user.email },
-		'SuperSecretImpossibleToDecode'
+	res.status(200).send(
+		`User with email ${user.email} has been created successfully`
 	)
-	res.status(200).send(token)
 })
+// Logout
+router.post('/logout', isAuthenticated, async (req, res) => {
+	const { id } = req.user
+	await client.query(`DELETE FROM tokens WHERE user_id = ${id}`)
+	res.status(200).send('Logged out successfully')
+})
+
 // Get All Products
 router.get('/products', async (req, res) => {
 	try {
@@ -117,7 +126,7 @@ router.put('/cart/products/:productId', isAuthenticated, async (req, res) => {
 		`UPDATE cart_products SET quantity = ${quantity} WHERE cart_id = ${cartId} AND product_id = ${productId} RETURNING *`
 	).rows[0]
 	res.status(200).send(cartProduct)
-})
+})  
 // Delete product from cart
 router.delete(
 	'/cart/products/:productId',
